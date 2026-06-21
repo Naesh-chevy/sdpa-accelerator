@@ -1,0 +1,23 @@
+# simulation output
+*.vcd
+*.out
+*.fst
+sim/
+obj_dir/
+
+# python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# os
+.DS_Store
+Thumbs.db
