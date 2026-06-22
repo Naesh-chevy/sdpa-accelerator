@@ -13,6 +13,7 @@ module control_fsm (
     output logic [1:0] row_idx,      // current row for score/softmax/output
     output logic       mac_clear,
     output logic       mac_en,
+    output logic       mac_wb,
     output logic       sm_start,
     output logic       busy,
     output logic       done
@@ -165,6 +166,7 @@ module control_fsm (
 
     assign mac_clear = (sub == ST_RUN && k == 0 && is_matmul);
     assign mac_en    = (sub == ST_RUN && is_matmul);
+    assign mac_wb = (sub == ST_STEP && is_matmul);
     assign sm_start  = sm_start_r;
     assign busy      = (cur_phase != P_IDLE && cur_phase != P_DONE);
     assign done      = (cur_phase == P_DONE);
