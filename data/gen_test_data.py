@@ -32,8 +32,8 @@ X = np.zeros((N, D_MODEL))
 for i in range(N):
     X[i, (2 * i) % D_MODEL] = 1.0
     X[i, (2 * i + 1) % D_MODEL] = 1.0
-Wq = rng.uniform(-0.5, 0.5, (D_MODEL, D_K))
-Wk = rng.uniform(-0.5, 0.5, (D_MODEL, D_K))
+Wq = rng.uniform(-1.5, 1.5, (D_MODEL, D_K))
+Wk = rng.uniform(-1.5, 1.5, (D_MODEL, D_K))
 Wv = rng.uniform(-0.5, 0.5, (D_MODEL, D_K))
 
 X, Wq, Wk, Wv = quantize(X), quantize(Wq), quantize(Wk), quantize(Wv)
