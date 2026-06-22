@@ -27,7 +27,7 @@ All five phases share one 4x4 MAC array. A control FSM steers operands into the 
 | Softmax | 8 segment PWL exp, 64 entry reciprocal LUT | with max subtraction |
 
 ## Repository layout
-
+'''
 .
 ├── rtl/
 │   ├── params.svh        shared parameters
@@ -42,34 +42,36 @@ All five phases share one 4x4 MAC array. A control FSM steers operands into the 
 │   ├── gen_test_data.py  reference model and hex file generator
 │   └── *.hex             generated inputs and expected outputs
 └── README.md
-
+'''
 
 ## Build and run
 
 Generate the test data:
 
-
+'''
 cd data
 python3 gen_test_data.py
 cd ..
-
+'''
 
 Run the simulation:
 
+'''
 iverilog -g2012 -o sim.out rtl/*.sv tb/attention_tb.sv
 vvp sim.out
-
+'''
 
 Verify against the reference:
 
+'''
 python3 tb/compare.py
-
+'''
 
 View waveforms:
 
-
+'''
 gtkwave dump.vcd
-
+'''
 
 ## Design decisions
 
@@ -93,7 +95,7 @@ Three stages:
 2. Approximate exp with eight piecewise linear segments. Each segment is a slope and offset pair stored in registers.
 3. Sum the exponentials, look up the reciprocal in a 64 entry table, multiply each exponential by the reciprocal. Avoids a hardware divider.
 
-Piecewise linear was chosen over shift based methods like Softermax because attention weights concentrate in the small input region where shift methods lose the most precision. Reciprocal LUT was chosen over log sum exp because it is simpler and exposes the divide as a single multiply rather than embedding it across the pipeline.
+Piecewise linear was chosen over shift based methods like Softermax because attention weights concentrate in the small input region where shift methods lose the most precision. Reciprocal LUT was chosen over log sum exp because it replaces division with one lookup and a multiply.
 
 ### Scaling collapses to a shift
 
@@ -101,13 +103,38 @@ With D_K = 4, sqrt(D_K) = 2, so the scaling step is a one bit right shift. The c
 
 ## Verification
 
-`gen_test_data.py` produces both the input hex files and the expected output at every pipeline stage. The testbench loads the inputs into the design, runs the FSM through every phase, and dumps the contents of each buffer. `compare.py` checks the HDL outputs against the expected files element by element with a small tolerance for quantization and softmax approximation error.
+`gen_test_data.py` produces both the input hex files and the expected output at every pipeline stage. The testbench loads the inputs into the design, runs the FSM through every phase, and dumps the contents of each buffer.
 
-Default tolerance is 8 LSBs of Q4.12, about 0.002 in absolute value.
+`compare.py` checks the HDL outputs against the expected files element by element.
 
-## Status
+Full pipeline result on a peaked test case:
 
-In progress. See commit history for current state.
+| Stage | Max error | Notes |
+|-------|-----------|-------|
+| Q, K, V | 0 LSB | bit exact projections |
+| S scaled | 1 LSB | single rounding bit from the shift |
+| A | 112 LSB (2.7%) | softmax approximation |
+| O | 60 LSB (1.5%) | softmax error propagated through A V |
+
+
+### Softmax characterization
+
+`characterize_softmax.py` reimplements the exact hardware softmax math (same PWL table, same reciprocal LUT, same bit shifts) and runs it against true softmax across distributions from uniform to sharply peaked:
+
+| Distribution | Max absolute error |
+|--------------|--------------------|
+| uniform | 0.4% |
+| mild | 2.3% |
+| peaked | 0.9% |
+| very peaked | 3.5% |
+| two hot | 0.5% |
+
+Worst case is 3.5 percent on the most peaked input, which is the segment 4 region where the eight segment piecewise linear fit is least tight. This is the approximation errorand could be reduced with more segments at the cost of area.
+
+
+## Latency
+
+The full operation completes in roughly 135 cycles for this configuration. The projections dominate because each accumulates over D_MODEL = 8, while the score and output matmuls accumulate over D_K = 4. The softmax adds a fixed seven cycles per row. Because the design is sequential, latency scales with the sum of the matmul inner dimensions rather than running them in parallel, which is the area for latency trade described above.
 
 ## Not in scope
 
