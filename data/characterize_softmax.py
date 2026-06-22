@@ -4,7 +4,7 @@ FRAC = 12
 SCALE = 1 << FRAC
 
 pwl_slope  = [2589, 952, 350, 129, 47, 17, 6, 2]
-pwl_offset = [4096, 2459, 912, 338, 122, 44, 16, 6]
+pwl_offset = [4096, 2459, 1255, 591, 265, 115, 49, 20]
 
 recip_lut = []
 for k in range(48):
