@@ -26,12 +26,12 @@ module softmax_unit (
     initial begin
         pwl_slope[0] = 16'sd2589;  pwl_offset[0] = 16'sd4096;
         pwl_slope[1] = 16'sd952;   pwl_offset[1] = 16'sd2459;
-        pwl_slope[2] = 16'sd350;   pwl_offset[2] = 16'sd912;
-        pwl_slope[3] = 16'sd129;   pwl_offset[3] = 16'sd338;
-        pwl_slope[4] = 16'sd47;    pwl_offset[4] = 16'sd122;
-        pwl_slope[5] = 16'sd17;    pwl_offset[5] = 16'sd44;
-        pwl_slope[6] = 16'sd6;     pwl_offset[6] = 16'sd16;
-        pwl_slope[7] = 16'sd2;     pwl_offset[7] = 16'sd6;
+        pwl_slope[2] = 16'sd350;   pwl_offset[2] = 16'sd1255;
+        pwl_slope[3] = 16'sd129;   pwl_offset[3] = 16'sd591;
+        pwl_slope[4] = 16'sd47;    pwl_offset[4] = 16'sd265;
+        pwl_slope[5] = 16'sd17;    pwl_offset[5] = 16'sd115;
+        pwl_slope[6] = 16'sd6;     pwl_offset[6] = 16'sd49;
+        pwl_slope[7] = 16'sd2;     pwl_offset[7] = 16'sd20;
         // 16777216 = 2^24: dividing gives 1/sum in Q4.12
         for (int k = 0; k < 48; k++)
             recip_lut[k] = 32'sd16777216 / (32'sd4096 + k * 256);
