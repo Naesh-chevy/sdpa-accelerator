@@ -27,7 +27,7 @@ All five phases share one 4x4 MAC array. A control FSM steers operands into the 
 | Softmax | 8 segment PWL exp, 64 entry reciprocal LUT | with max subtraction |
 
 ## Repository layout
-'''
+```
 .
 ├── rtl/
 │   ├── params.svh        shared parameters
@@ -42,36 +42,36 @@ All five phases share one 4x4 MAC array. A control FSM steers operands into the 
 │   ├── gen_test_data.py  reference model and hex file generator
 │   └── *.hex             generated inputs and expected outputs
 └── README.md
-'''
+```
 
 ## Build and run
 
 Generate the test data:
 
-'''
+```
 cd data
 python3 gen_test_data.py
 cd ..
-'''
+```
 
 Run the simulation:
 
-'''
+```
 iverilog -g2012 -o sim.out rtl/*.sv tb/attention_tb.sv
 vvp sim.out
-'''
+```
 
 Verify against the reference:
 
-'''
+```
 python3 tb/compare.py
-'''
+```
 
 View waveforms:
 
-'''
+```
 gtkwave dump.vcd
-'''
+```
 
 ## Design decisions
 
